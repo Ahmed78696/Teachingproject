@@ -16,10 +16,16 @@ import com.example.userapp.viewmodel.SettingsViewModel
 import com.example.userapp.ui.home.HomeScreen
 import com.example.userapp.ui.users.UsersScreen
 import com.example.userapp.ui.settings.SettingsScreen
+import com.example.userapp.ui.profile.ProfileScreen
+import com.example.userapp.viewmodel.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun UserApp(userViewModel: UserViewModel, settingsViewModel: SettingsViewModel) {
+fun UserApp(
+    userViewModel: UserViewModel,
+    settingsViewModel: SettingsViewModel,
+    profileViewModel: ProfileViewModel
+) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -31,7 +37,7 @@ fun UserApp(userViewModel: UserViewModel, settingsViewModel: SettingsViewModel) 
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier.width(280.dp),
-                drawerContainerColor = MaterialTheme.colorScheme.surface, // solid background
+                drawerContainerColor = MaterialTheme.colorScheme.surface,
                 drawerContentColor = MaterialTheme.colorScheme.onSurface
             ) {
                 DrawerContent(
@@ -66,11 +72,18 @@ fun UserApp(userViewModel: UserViewModel, settingsViewModel: SettingsViewModel) 
                 composable("users") {
                     UsersScreen(
                         viewModel = userViewModel,
-                        onNavigateSettings = { navController.navigate("settings") } // ✅ connect nav
+                        onNavigateSettings = { navController.navigate("settings") }
                     )
                 }
 
                 composable("settings") { SettingsScreen(navController, settingsViewModel) }
+
+                composable("profile") {
+                    ProfileScreen(
+                        navController = navController,
+                        viewModel = profileViewModel
+                    )
+                }
             }
         }
     }

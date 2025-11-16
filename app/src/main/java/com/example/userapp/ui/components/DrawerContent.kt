@@ -17,28 +17,53 @@ fun DrawerContent(
     drawerState: DrawerState,
     scope: CoroutineScope,
     isDarkTheme: Boolean,
-    onThemeToggle: (Boolean) -> Unit
+    onThemeToggle: () -> Unit
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text("Navigation", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
-        Text("Home", modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                scope.launch { drawerState.close() }
-                navController.navigate("home")
-            })
-        Text("Users", modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                scope.launch { drawerState.close() }
-                navController.navigate("users")
-            })
+
+        Text(
+            "Home",
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    scope.launch { drawerState.close() }
+                    navController.navigate("home") {
+                        popUpTo("home") { inclusive = true }
+                    }
+                }
+        )
+
+        Text(
+            "Users",
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    scope.launch { drawerState.close() }
+                    navController.navigate("users")
+                }
+        )
+
+        Text(
+            "Profile",
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable {
+                    scope.launch { drawerState.close() }
+                    navController.navigate("profile")
+                }
+        )
+
         Spacer(Modifier.height(16.dp))
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(if (isDarkTheme) "Dark Mode" else "Light Mode")
             Spacer(Modifier.width(8.dp))
-            Switch(checked = isDarkTheme, onCheckedChange = onThemeToggle)
+            Switch(
+                checked = isDarkTheme,
+                onCheckedChange = { onThemeToggle() }
+            )
         }
     }
 }
