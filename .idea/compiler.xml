@@ -3,6 +3,8 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
       <module name="Teaching_project.app" target="21" />
+      <module name="teachingproject-userapp-Ahmed78696.app" target="17" />
+      <module name="teachingproject-userapp.app" target="17" />
       <module name="User_App.app" target="17" />
     </bytecodeTargetLevel>
   </component>
