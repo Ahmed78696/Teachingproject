@@ -6,12 +6,13 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.text.KeyboardOptions
+
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.userapp.viewmodel.ProfileViewModel
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -25,6 +26,7 @@ fun ProfileScreen(
     val formatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
 
     var showDatePicker by remember { mutableStateOf(false) }
+    val datePickerState = rememberDatePickerState()
 
     Scaffold(
         topBar = {
@@ -41,6 +43,7 @@ fun ProfileScreen(
             )
         }
     ) { paddingValues ->
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -48,19 +51,14 @@ fun ProfileScreen(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Top
         ) {
-            if (state.error != null) {
-                Text(
-                    text = state.error ?: "",
-                    color = MaterialTheme.colorScheme.error
-                )
+
+            state.error?.let {
+                Text(it, color = MaterialTheme.colorScheme.error)
                 Spacer(Modifier.height(8.dp))
             }
 
             if (state.saved) {
-                Text(
-                    text = "Profile saved!",
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Text("Profile saved!", color = MaterialTheme.colorScheme.primary)
                 Spacer(Modifier.height(8.dp))
             }
 
@@ -87,9 +85,7 @@ fun ProfileScreen(
                 onValueChange = viewModel::onEmailChange,
                 label = { Text("Email") },
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = androidx.compose.ui.text.input.KeyboardOptions(
-                    keyboardType = KeyboardType.Email
-                )
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
 
             Spacer(Modifier.height(8.dp))
@@ -99,9 +95,7 @@ fun ProfileScreen(
                 onValueChange = viewModel::onPhoneChange,
                 label = { Text("Phone") },
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = androidx.compose.ui.text.input.KeyboardOptions(
-                    keyboardType = KeyboardType.Phone
-                )
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
             )
 
             Spacer(Modifier.height(8.dp))
@@ -110,15 +104,13 @@ fun ProfileScreen(
                 onClick = { showDatePicker = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = state.dateOfBirth?.format(formatter) ?: "Select date of birth"
-                )
+                Text(state.dateOfBirth?.format(formatter) ?: "Select date of birth")
             }
 
             Spacer(Modifier.height(16.dp))
 
             Button(
-                onClick = { viewModel.saveProfile() },
+                onClick = viewModel::saveProfile,
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !state.isLoading
             ) {
@@ -139,7 +131,18 @@ fun ProfileScreen(
             DatePickerDialog(
                 onDismissRequest = { showDatePicker = false },
                 confirmButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
+                    TextButton(
+                        onClick = {
+                            showDatePicker = false
+                            val millis = datePickerState.selectedDateMillis
+                            val date = millis?.let {
+                                Instant.ofEpochMilli(it)
+                                    .atZone(ZoneId.systemDefault())
+                                    .toLocalDate()
+                            }
+                            viewModel.onDateOfBirthChange(date)
+                        }
+                    ) {
                         Text("OK")
                     }
                 },
@@ -149,21 +152,7 @@ fun ProfileScreen(
                     }
                 }
             ) {
-                DatePicker(
-                    state = rememberDatePickerState(
-                        initialSelectedDateMillis = state.dateOfBirth?.atStartOfDay(
-                            ZoneId.systemDefault()
-                        )?.toInstant()?.toEpochMilli()
-                    ),
-                    showModeToggle = false,
-                    onDateChange = { millis ->val date = millis?.let {
-                            Instant.ofEpochMilli(it)
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDate()
-                        }
-                        viewModel.onDateOfBirthChange(date)
-                    }
-                )
+                DatePicker(state = datePickerState)
             }
         }
     }

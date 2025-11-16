@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.ksp)
-    alias(libs.plugins.google.services) // Firebase plugin
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -31,12 +31,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
     buildFeatures {
@@ -49,7 +49,7 @@ dependencies {
     // Jetpack Compose BOM
     implementation(platform(libs.androidx.compose.bom))
 
-    // Core + Compose
+    // Compose Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -59,8 +59,10 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation("androidx.compose.material:material-icons-extended")
 
-    // ✅ Compose Foundation (Fixes KeyboardOptions + KeyboardType)
-    implementation("androidx.compose.foundation:foundation")
+    // REQUIRED for KeyboardOptions + KeyboardType + TextFields
+    implementation("androidx.compose.foundation:foundation:1.7.5")
+    implementation("androidx.compose.ui:ui-text:1.7.5")
+    implementation("androidx.compose.foundation:foundation-text:1.7.5")
 
     // Navigation Compose
     implementation("androidx.navigation:navigation-compose:2.7.7")
@@ -80,12 +82,12 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 
-    // Firebase (🔥 Remote Auth + Firestore) — CLEAN VERSION (NO UNICODE)
+    // Firebase (Auth + Firestore)
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
 
-    // Tests
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
