@@ -20,7 +20,6 @@ import com.example.userapp.viewmodel.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
-// DataStore extension
 val Context.dataStore by preferencesDataStore(name = "user_prefs")
 
 class MainActivity : ComponentActivity() {
@@ -30,12 +29,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // --- DataStore for settings ---
+        // Settings / DataStore
         val userPrefsRepo = UserPreferencesRepository(applicationContext.dataStore)
         val settingsFactory = SettingsViewModelFactory(userPrefsRepo)
         val settingsViewModel: SettingsViewModel by viewModels { settingsFactory }
 
-        // --- Room database ---
+        // Room DB
         val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java,
@@ -44,24 +43,23 @@ class MainActivity : ComponentActivity() {
             .fallbackToDestructiveMigration()
             .build()
 
+        // Repositories
         val userRepository = UserRepository(db.userDao())
-
-        // --- Profile repository (Room + Firestore) ---
         val profileRepository = ProfileRepository(
             db = db,
-            firestore = FirebaseFirestore.getInstance(),
-            auth = FirebaseAuth.getInstance()
+            auth = FirebaseAuth.getInstance(),
+            firestore = FirebaseFirestore.getInstance()
         )
 
+        // ViewModels
         val userFactory = UserViewModelFactory(userRepository)
         val userViewModel: UserViewModel by viewModels { userFactory }
 
-        val profileViewModelFactory = ProfileViewModelFactory(profileRepository)
-        val profileViewModel: ProfileViewModel by viewModels { profileViewModelFactory }
+        val profileFactory = ProfileViewModelFactory(profileRepository)
+        val profileViewModel: ProfileViewModel by viewModels { profileFactory }
 
         setContent {
             val isDark by settingsViewModel.isDarkTheme.collectAsState()
-
             UserAppTheme(darkTheme = isDark) {
                 if (loginViewModel.isLoggedIn()) {
                     UserApp(
@@ -79,3 +77,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+

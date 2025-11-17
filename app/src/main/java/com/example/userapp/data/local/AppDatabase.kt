@@ -5,7 +5,10 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [UserEntity::class, UserProfileEntity::class],
+    entities = [
+        UserEntity::class,          // your existing entity
+        UserProfileEntity::class    // new profile entity
+    ],
     version = 2
 )
 @TypeConverters(Converters::class)

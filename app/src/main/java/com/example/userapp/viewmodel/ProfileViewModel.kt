@@ -9,9 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 
 data class ProfileUiState(
     val firstName: String = "",
@@ -32,13 +30,12 @@ class ProfileViewModel(
     val uiState: StateFlow<ProfileUiState> = _uiState
 
     init {
-        loadProfile()
+        observeLocalProfile()
+        refreshFromRemote()
     }
 
-    private fun loadProfile() {
+    private fun observeLocalProfile() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
-            // Listen to local Room
             repo.getLocalProfile().collectLatest { profile ->
                 if (profile != null) {
                     _uiState.value = _uiState.value.copy(
@@ -49,18 +46,22 @@ class ProfileViewModel(
                         dateOfBirth = profile.dateOfBirth,
                         isLoading = false
                     )
-                } else {
-                    _uiState.value = _uiState.value.copy(isLoading = false)
                 }
             }
         }
+    }
 
-        // Sync from Firestore once
+    private fun refreshFromRemote() {
         viewModelScope.launch {
             try {
-                repo.syncFromRemote()
+                _uiState.value = _uiState.value.copy(isLoading = true)
+                repo.refreshFromRemote()
+                _uiState.value = _uiState.value.copy(isLoading = false)
             } catch (e: Exception) {
-                _uiState.value = _uiState.value.copy(error = e.message)
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    error = e.message
+                )
             }
         }
     }
@@ -97,7 +98,10 @@ class ProfileViewModel(
                     phone = state.phone,
                     dateOfBirth = state.dateOfBirth
                 )
-                _uiState.value = _uiState.value.copy(isLoading = false, saved = true)
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    saved = true
+                )
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
@@ -117,6 +121,6 @@ class ProfileViewModelFactory(
             @Suppress("UNCHECKED_CAST")
             return ProfileViewModel(repo) as T
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }

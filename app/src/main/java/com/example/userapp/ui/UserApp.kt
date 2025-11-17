@@ -10,14 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.*
 import com.example.userapp.ui.components.DrawerContent
-import kotlinx.coroutines.launch
+import com.example.userapp.ui.home.HomeScreen
+import com.example.userapp.ui.settings.SettingsScreen
+import com.example.userapp.ui.users.UsersScreen
+import com.example.userapp.ui.profile.ProfileScreen
 import com.example.userapp.viewmodel.UserViewModel
 import com.example.userapp.viewmodel.SettingsViewModel
-import com.example.userapp.ui.home.HomeScreen
-import com.example.userapp.ui.users.UsersScreen
-import com.example.userapp.ui.settings.SettingsScreen
-import com.example.userapp.ui.profile.ProfileScreen
 import com.example.userapp.viewmodel.ProfileViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +76,9 @@ fun UserApp(
                     )
                 }
 
-                composable("settings") { SettingsScreen(navController, settingsViewModel) }
+                composable("settings") {
+                    SettingsScreen(navController, settingsViewModel)
+                }
 
                 composable("profile") {
                     ProfileScreen(
